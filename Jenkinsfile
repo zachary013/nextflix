@@ -4,7 +4,7 @@ pipeline {
         AWS_REGION      = 'us-east-1'
         IMAGE_NAME      = 'nextflix'
         ECR_REGISTRY    = 'public.ecr.aws/s2g7y4g3/nextflix'
-        EKS_CLUSTER_NAME = 'main-cluster'
+        //EKS_CLUSTER_NAME = 'main-cluster'
         SCANNER_HOME = tool 'sonar-scanner'
     }
     stages {
