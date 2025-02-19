@@ -46,7 +46,7 @@ pipeline {
         stage("Docker Build Image"){
             steps{
                    
-                sh "docker build --build-arg API_KEY=2af0904de8242d48e8527eeedc3e19d9 -t netflix ."
+                sh "docker build --build-arg API_KEY=4361ca02a1df2d33722c1f4194a9aa42 -t netflix ."
             }
         }
         stage("TRIVY"){
@@ -62,7 +62,7 @@ pipeline {
             steps {
                 script {
                     withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {  
-                        
+
                         sh "aws ecr-public get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
                         sh "docker tag ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} ${ECR_REGISTRY}/${IMAGE_NAME}:latest"
