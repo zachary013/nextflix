@@ -6,6 +6,7 @@ pipeline {
         ECR_REGISTRY    = 'public.ecr.aws/s2g7y4g3'
         SCANNER_HOME = tool 'sonar-scanner'
         DOCKER_BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        NVD_API_KEY = '8a25c550-868f-4a20-8495-03d160dd0574'
     }
     stages {
         stage('clean workspace') {
@@ -29,7 +30,7 @@ pipeline {
 
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'OWASP-DP-CHECK'
+                dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY}", odcInstallation: 'OWASP-DP-CHECK'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
