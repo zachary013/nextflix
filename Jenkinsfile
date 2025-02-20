@@ -3,9 +3,9 @@ pipeline {
     environment {
         AWS_REGION      = 'us-east-1'
         IMAGE_NAME      = 'nextflix'
-        ECR_REGISTRY    = 'public.ecr.aws/s2g7y4g3/nextflix'
-        //EKS_CLUSTER_NAME = 'main-cluster'
+        ECR_REGISTRY    = 'public.ecr.aws/s2g7y4g3'
         SCANNER_HOME = tool 'sonar-scanner'
+        DOCKER_BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
     stages {
         stage('clean workspace') {
@@ -21,8 +21,8 @@ pipeline {
         stage("Sonarqube Analysis") {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix'''
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=nextflix \
+                    -Dsonar.projectKey=nextflix'''
                 }
             }
         }
@@ -46,7 +46,9 @@ pipeline {
         stage("Docker Build Image"){
             steps{
                    
-                sh "docker build --build-arg API_KEY=4361ca02a1df2d33722c1f4194a9aa42 -t netflix ."
+                sh """
+                docker build --build-arg API_KEY=4361ca02a1df2d33722c1f4194a9aa42 -t ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} .
+                """
             }
         }
         stage("TRIVY"){
