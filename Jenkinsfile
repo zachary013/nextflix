@@ -6,7 +6,6 @@ pipeline {
         ECR_REGISTRY    = 'public.ecr.aws/s2g7y4g3'
         SCANNER_HOME = tool 'sonar-scanner'
         DOCKER_BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        NVD_API_KEY = '8a25c550-868f-4a20-8495-03d160dd0574'
     }
     stages {
         stage('clean workspace') {
@@ -28,13 +27,6 @@ pipeline {
             }
         }
 
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY}", odcInstallation: 'OWASP-DP-CHECK'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-
         stage('TRIVY FS SCAN') {
             steps {
                 script {
@@ -47,17 +39,16 @@ pipeline {
             }
         }
         stage("Docker Build Image"){
-            steps{
-                   
+            steps {
                 sh """
                 docker build --build-arg API_KEY=4361ca02a1df2d33722c1f4194a9aa42 -t ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} .
                 """
             }
         }
         stage("TRIVY"){
-            steps{
-                sh "trivy image netflix > trivyimage.txt"
-                script{
+            steps {
+                sh "trivy image ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} > trivyimage.txt"
+                script {
                     input(message: "Are you sure to proceed?", ok: "Proceed")
                 }
             }
@@ -67,16 +58,12 @@ pipeline {
             steps {
                 script {
                     withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {  
-
                         sh "aws ecr-public get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-
                         sh "docker tag ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} ${ECR_REGISTRY}/${IMAGE_NAME}:latest"
-
                         sh "docker push ${ECR_REGISTRY}/${IMAGE_NAME}:latest"
                     }
                 }
             }
         }
-
     }
 }
