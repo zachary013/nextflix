@@ -41,7 +41,7 @@ pipeline {
         stage("Docker Build Image"){
             steps {
                 sh """
-                docker build --build-arg API_KEY=4361ca02a1df2d33722c1f4194a9aa42 -t ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} .
+                docker build --build-arg API_KEY=xxxx -t ${IMAGE_NAME}:${DOCKER_BUILD_NUMBER} .
                 """
             }
         }
